@@ -16,6 +16,7 @@ import {
 import { colors, radii, spacing, typography } from '../theme';
 import { citacaoDoDia, propositoAtual, versiculoDoDia } from '../data/dailyContent';
 import { RootTabParamList } from '../navigation/types';
+import { useFasting } from '../context/FastingContext';
 
 // Etapa 1: usuário mockado. Será substituído pelo módulo de autenticação/perfil.
 const usuario = { nome: 'Mariana' };
@@ -24,6 +25,7 @@ type Navigation = BottomTabNavigationProp<RootTabParamList, 'Inicio'>;
 
 export function HomeScreen() {
   const navigation = useNavigation<Navigation>();
+  const { jejumAtivo } = useFasting();
   return (
     <ScreenContainer>
       <View style={styles.topRow}>
@@ -122,29 +124,57 @@ export function HomeScreen() {
         </View>
       </View>
 
-      <Card style={styles.purposeCard}>
-        <View style={styles.purposeRow}>
-          <View style={styles.purposeTextWrap}>
-            <Text style={styles.purposeTitle}>Continue seu propósito</Text>
-            <Text style={styles.purposeSubtitle}>
-              {propositoAtual.titulo} • {propositoAtual.etapa}
-            </Text>
-          </View>
-          <View style={styles.purposeIcon}>
-            <View style={styles.purposeIconGlyph}>
-              <LogoMark size={22} color={colors.gold500} />
+      <Pressable onPress={() => navigation.navigate('Jejum')}>
+        <Card style={styles.purposeCard}>
+          {jejumAtivo ? (
+            <>
+              <View style={[styles.purposeRow, styles.purposeRowActive]}>
+                <View style={styles.purposeTextWrap}>
+                  <Text style={styles.purposeLabel}>SEU JEJUM EM ANDAMENTO</Text>
+                  {!!jejumAtivo.proposito && <Text style={styles.purposeTitle}>{jejumAtivo.proposito}</Text>}
+                  <Text style={styles.purposeSubtitle}>
+                    Dia {jejumAtivo.diaAtual} de {jejumAtivo.duracaoDias}
+                  </Text>
+                </View>
+                <View style={styles.purposeIcon}>
+                  <View style={styles.purposeIconGlyph}>
+                    <LogoMark size={22} color={colors.gold500} />
+                  </View>
+                </View>
+              </View>
+              <ProgressBar progress={jejumAtivo.diaAtual / jejumAtivo.duracaoDias} />
+              <View style={styles.purposeFooterRow}>
+                <Text style={styles.purposePercent}>
+                  {Math.round((jejumAtivo.diaAtual / jejumAtivo.duracaoDias) * 100)}% concluído
+                </Text>
+                <Text style={styles.purposeContinueLink}>Continuar jejum →</Text>
+              </View>
+            </>
+          ) : (
+            <View style={styles.purposeRow}>
+              <View style={styles.purposeTextWrap}>
+                <Text style={styles.purposeTitle}>{propositoAtual.titulo}</Text>
+                <Text style={styles.purposeSubtitle}>{propositoAtual.subtitulo}</Text>
+              </View>
+              <View style={styles.purposeIcon}>
+                <View style={styles.purposeIconGlyph}>
+                  <LogoMark size={22} color={colors.gold500} />
+                </View>
+              </View>
             </View>
-          </View>
-        </View>
-        <ProgressBar progress={propositoAtual.progresso} />
-        <Text style={styles.purposePercent}>{Math.round(propositoAtual.progresso * 100)}%</Text>
-      </Card>
+          )}
+        </Card>
+      </Pressable>
 
       <View style={styles.section}>
         <SectionHeader title="Descubra mais" />
         <View style={styles.discoverRow}>
-          <DiscoverItem icon="book-open-page-variant-outline" label="Bíblia" />
-          <DiscoverItem icon="bird" label="Jejum" />
+          <DiscoverItem
+            icon="book-open-page-variant-outline"
+            label="Bíblia"
+            onPress={() => navigation.navigate('Biblia')}
+          />
+          <DiscoverItem icon="bird" label="Jejum" onPress={() => navigation.navigate('Jejum')} />
           <DiscoverItem customIcon={<KidsMark size={22} color={colors.navy700} />} label="Kids" />
           <DiscoverItem icon="play-box-outline" label="Pregações" />
           <DiscoverItem icon="view-grid-outline" label="Mais" />
@@ -158,18 +188,23 @@ function DiscoverItem({
   icon,
   customIcon,
   label,
+  onPress,
 }: {
   icon?: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
   customIcon?: React.ReactNode;
   label: string;
+  onPress?: () => void;
 }) {
   return (
-    <View style={styles.discoverItem}>
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [styles.discoverItem, pressed && onPress && styles.discoverItemPressed]}
+    >
       <View style={styles.discoverIcon}>
         {customIcon ?? (icon && <MaterialCommunityIcons name={icon} size={22} color={colors.navy700} />)}
       </View>
       <Text style={styles.discoverLabel}>{label}</Text>
-    </View>
+    </Pressable>
   );
 }
 
@@ -354,11 +389,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  purposeRowActive: {
     marginBottom: spacing.lg,
   },
   purposeTextWrap: {
     flex: 1,
     marginRight: spacing.md,
+  },
+  purposeLabel: {
+    ...typography.label,
+    color: colors.gold500,
+    marginBottom: spacing.xs,
   },
   purposeTitle: {
     ...typography.h3,
@@ -368,6 +410,20 @@ const styles = StyleSheet.create({
   purposeSubtitle: {
     ...typography.caption,
     color: colors.ink600,
+  },
+  purposeFooterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: spacing.sm,
+  },
+  purposePercent: {
+    ...typography.caption,
+    color: colors.ink600,
+  },
+  purposeContinueLink: {
+    ...typography.caption,
+    color: colors.navy600,
   },
   purposeIcon: {
     width: 48,
@@ -380,12 +436,6 @@ const styles = StyleSheet.create({
   purposeIconGlyph: {
     transform: [{ rotate: '-12deg' }],
   },
-  purposePercent: {
-    ...typography.caption,
-    color: colors.ink600,
-    marginTop: spacing.sm,
-    textAlign: 'right',
-  },
   discoverRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -393,6 +443,9 @@ const styles = StyleSheet.create({
   discoverItem: {
     alignItems: 'center',
     width: 60,
+  },
+  discoverItemPressed: {
+    opacity: 0.6,
   },
   discoverIcon: {
     width: 56,

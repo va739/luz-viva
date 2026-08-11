@@ -25,8 +25,12 @@ export const citacaoDoDia: CitacaoDoDia = {
   autor: 'Santo Agostinho',
 };
 
+/**
+ * Convite genérico para o módulo de Jejum. Não representa um jejum real em
+ * andamento — os jejuns de personagens bíblicos (Ester, Daniel, Jesus...)
+ * ainda não foram implementados, então nenhum progresso é exibido aqui.
+ */
 export const propositoAtual = {
-  titulo: 'Jejum de Ester',
-  etapa: 'Dia 2 de 3',
-  progresso: 0.66,
+  titulo: 'Continue seu propósito',
+  subtitulo: 'Comece um jejum e acompanhe sua jornada de fé aqui.',
 };

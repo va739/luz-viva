@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { HomeScreen, JejumScreen, OracaoScreen, PerfilScreen } from '../screens';
 import { colors, fontFamilies } from '../theme';
+import { FastingProvider } from '../context/FastingContext';
 import { BibliaStackNavigator } from './BibliaStackNavigator';
 import { RootTabParamList } from './types';
 
@@ -38,6 +39,14 @@ const LABELS: Record<keyof RootTabParamList, string> = {
  * Não substituir nenhuma aba sem autorização explícita.
  */
 export function RootTabNavigator() {
+  return (
+    <FastingProvider>
+      <RootTabs />
+    </FastingProvider>
+  );
+}
+
+function RootTabs() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
