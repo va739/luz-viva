@@ -9,20 +9,9 @@ export type VersiculoDoDia = {
   referencia: string;
 };
 
-export type CitacaoDoDia = {
-  texto: string;
-  autor: string;
-};
-
 export const versiculoDoDia: VersiculoDoDia = {
   texto: 'O Senhor é o meu pastor; nada me faltará.',
   referencia: 'Salmos 23:1',
-};
-
-export const citacaoDoDia: CitacaoDoDia = {
-  texto:
-    'Fizeste-nos para Ti, e inquieto está o nosso coração enquanto não repousa em Ti.',
-  autor: 'Santo Agostinho',
 };
 
 /**

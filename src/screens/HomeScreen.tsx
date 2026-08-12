@@ -1,7 +1,8 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { CompositeNavigationProp, useNavigation } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import {
   Card,
@@ -14,18 +15,28 @@ import {
   ShortcutCard,
 } from '../components';
 import { colors, radii, spacing, typography } from '../theme';
-import { citacaoDoDia, propositoAtual, versiculoDoDia } from '../data/dailyContent';
-import { RootTabParamList } from '../navigation/types';
+import { propositoAtual, versiculoDoDia } from '../data/dailyContent';
+import { HomeStackParamList, RootTabParamList } from '../navigation/types';
 import { useFasting } from '../context/FastingContext';
+import { useDevotional } from '../context/DevotionalContext';
 
 // Etapa 1: usuário mockado. Será substituído pelo módulo de autenticação/perfil.
 const usuario = { nome: 'Mariana' };
 
-type Navigation = BottomTabNavigationProp<RootTabParamList, 'Inicio'>;
+type Navigation = CompositeNavigationProp<
+  NativeStackNavigationProp<HomeStackParamList, 'HomeMain'>,
+  BottomTabNavigationProp<RootTabParamList, 'Inicio'>
+>;
 
 export function HomeScreen() {
   const navigation = useNavigation<Navigation>();
   const { jejumAtivo } = useFasting();
+  const { resumoHome } = useDevotional();
+
+  const devocionalSubtitulo =
+    resumoHome.tipo === 'jornada'
+      ? `${resumoHome.tema} · Dia ${resumoHome.numeroDia} de ${resumoHome.totalDias}`
+      : resumoHome.titulo;
   return (
     <ScreenContainer>
       <View style={styles.topRow}>
@@ -87,24 +98,16 @@ export function HomeScreen() {
         </View>
       </Card>
 
-      <Card style={styles.quoteCard}>
-        <View style={styles.quoteHeader}>
-          <MaterialCommunityIcons name="format-quote-open" size={18} color={colors.gold500} />
-          <Text style={styles.quoteLabel}>CITAÇÃO DO DIA</Text>
-        </View>
-        <Text style={styles.quoteText}>“{citacaoDoDia.texto}”</Text>
-        <Text style={styles.quoteAuthor}>— {citacaoDoDia.autor}</Text>
-      </Card>
-
       <View style={styles.section}>
         <SectionHeader title="Seu momento de hoje" actionLabel="Ver tudo" />
         <View style={styles.shortcutsRow}>
           <ShortcutCard
             icon="book-open-page-variant-outline"
             title="Devocional"
-            subtitle="Leia sua palavra e reflita"
+            subtitle={devocionalSubtitulo}
             backgroundColor={colors.tintPeach}
             iconColor={colors.tintPeachIcon}
+            onPress={() => navigation.navigate('Devocional')}
           />
           <ShortcutCard
             icon="hands-pray"
@@ -169,12 +172,6 @@ export function HomeScreen() {
       <View style={styles.section}>
         <SectionHeader title="Descubra mais" />
         <View style={styles.discoverRow}>
-          <DiscoverItem
-            icon="book-open-page-variant-outline"
-            label="Bíblia"
-            onPress={() => navigation.navigate('Biblia')}
-          />
-          <DiscoverItem icon="bird" label="Jejum" onPress={() => navigation.navigate('Jejum')} />
           <DiscoverItem customIcon={<KidsMark size={22} color={colors.navy700} />} label="Kids" />
           <DiscoverItem icon="play-box-outline" label="Pregações" />
           <DiscoverItem icon="view-grid-outline" label="Mais" />
@@ -350,30 +347,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     gap: spacing.xxxl,
-  },
-  quoteCard: {
-    marginBottom: spacing.xxxl,
-  },
-  quoteHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  quoteLabel: {
-    ...typography.label,
-    color: colors.gold500,
-    marginLeft: spacing.sm,
-  },
-  quoteText: {
-    ...typography.h2,
-    fontSize: 17,
-    lineHeight: 25,
-    color: colors.ink900,
-    marginBottom: spacing.md,
-  },
-  quoteAuthor: {
-    ...typography.caption,
-    color: colors.ink600,
   },
   section: {
     marginBottom: spacing.xxxl,

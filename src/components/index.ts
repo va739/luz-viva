@@ -12,3 +12,5 @@ export * from './KidsMark';
 export * from './SearchField';
 export * from './ExpandableSection';
 export * from './ExpandableCard';
+export * from './devotional/DevotionalImage';
+export * from './devotional/WeekStrip';

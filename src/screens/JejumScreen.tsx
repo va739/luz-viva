@@ -55,6 +55,13 @@ const ICONES_BIBLICOS: Record<string, React.ComponentProps<typeof MaterialCommun
   jesus: 'white-balance-sunny',
 };
 
+const DURACAO_MINIMA = 1;
+const DURACAO_MAXIMA = 40;
+
+function formatarDuracao(dias: number): string {
+  return dias === 1 ? '1 dia' : `${dias} dias`;
+}
+
 /**
  * Reorganização final: a tela passa a ser uma sequência de cards com
  * hierarquia clara — Seu Jejum (sempre visível, é a ação principal) seguido
@@ -64,6 +71,10 @@ const ICONES_BIBLICOS: Record<string, React.ComponentProps<typeof MaterialCommun
  */
 export function JejumScreen() {
   const [duracaoSelecionada, setDuracaoSelecionada] = useState(3);
+  const [duracaoPersonalizada, setDuracaoPersonalizada] = useState<number | null>(null);
+  const [modalDuracaoAberto, setModalDuracaoAberto] = useState(false);
+  const [inputDias, setInputDias] = useState('');
+  const [erroDias, setErroDias] = useState<string | null>(null);
   const [proposito, setProposito] = useState('');
   const [biblicoSelecionado, setBiblicoSelecionado] = useState<JejumBiblico | null>(null);
   const { jejumAtivo, iniciarJejum: iniciarJejumContexto, encerrarJejum: encerrarJejumContexto } = useFasting();
@@ -75,6 +86,27 @@ export function JejumScreen() {
   const encerrarJejum = () => {
     encerrarJejumContexto();
     setProposito('');
+  };
+
+  const abrirPersonalizar = () => {
+    setInputDias(duracaoPersonalizada !== null ? String(duracaoPersonalizada) : '');
+    setErroDias(null);
+    setModalDuracaoAberto(true);
+  };
+
+  const confirmarDuracaoPersonalizada = () => {
+    const valor = inputDias.trim();
+    const numeroValido = /^\d+$/.test(valor) ? Number(valor) : NaN;
+
+    if (Number.isNaN(numeroValido) || numeroValido < DURACAO_MINIMA || numeroValido > DURACAO_MAXIMA) {
+      setErroDias(`Escolha uma duração entre ${DURACAO_MINIMA} e ${DURACAO_MAXIMA} dias.`);
+      return;
+    }
+
+    setDuracaoPersonalizada(numeroValido);
+    setDuracaoSelecionada(numeroValido);
+    setErroDias(null);
+    setModalDuracaoAberto(false);
   };
 
   return (
@@ -138,6 +170,22 @@ export function JejumScreen() {
                   </Pressable>
                 );
               })}
+              {(() => {
+                const personalizadaSelecionada =
+                  duracaoPersonalizada !== null && duracaoSelecionada === duracaoPersonalizada;
+                return (
+                  <Pressable
+                    onPress={abrirPersonalizar}
+                    style={[styles.durationPill, personalizadaSelecionada && styles.durationPillSelecionada]}
+                  >
+                    <Text
+                      style={[styles.durationLabel, personalizadaSelecionada && styles.durationLabelSelecionada]}
+                    >
+                      {duracaoPersonalizada !== null ? formatarDuracao(duracaoPersonalizada) : 'Personalizar'}
+                    </Text>
+                  </Pressable>
+                );
+              })()}
             </View>
 
             <Text style={[styles.fieldLabel, styles.fieldLabelSpaced]}>PROPÓSITO DO SEU JEJUM</Text>
@@ -260,6 +308,44 @@ export function JejumScreen() {
           </View>
         </Card>
       </ExpandableCard>
+
+      <Modal visible={modalDuracaoAberto} animationType="slide" transparent onRequestClose={() => setModalDuracaoAberto(false)}>
+        <View style={styles.overlay}>
+          <View style={styles.sheet}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Personalizar jejum</Text>
+              <Pressable
+                style={styles.modalCloseButton}
+                onPress={() => setModalDuracaoAberto(false)}
+                hitSlop={8}
+              >
+                <MaterialCommunityIcons name="close" size={20} color={colors.navy700} />
+              </Pressable>
+            </View>
+
+            <Text style={styles.fieldLabel}>QUANTOS DIAS VOCÊ DESEJA JEJUAR?</Text>
+            <TextInput
+              style={[styles.fieldInput, erroDias && styles.fieldInputErro]}
+              placeholder="Ex.: 5"
+              placeholderTextColor={colors.ink400}
+              value={inputDias}
+              onChangeText={(valor) => {
+                setInputDias(valor);
+                if (erroDias) setErroDias(null);
+              }}
+              keyboardType="number-pad"
+              maxLength={2}
+            />
+            <Text style={erroDias ? styles.errorText : styles.helperText}>
+              {erroDias ?? `Digite um número entre ${DURACAO_MINIMA} e ${DURACAO_MAXIMA} dias.`}
+            </Text>
+
+            <View style={styles.startButtonWrap}>
+              <PrimaryButton label="Confirmar" onPress={confirmarDuracaoPersonalizada} />
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       <Modal
         visible={!!biblicoSelecionado}
@@ -392,6 +478,19 @@ const styles = StyleSheet.create({
   },
   fieldTextArea: {
     minHeight: 90,
+  },
+  fieldInputErro: {
+    borderColor: colors.gold500,
+  },
+  helperText: {
+    ...typography.caption,
+    color: colors.ink400,
+    marginTop: spacing.sm,
+  },
+  errorText: {
+    ...typography.caption,
+    color: colors.gold500,
+    marginTop: spacing.sm,
   },
   startButtonWrap: {
     marginTop: spacing.xl,

@@ -19,3 +19,12 @@ export type BibliaStackParamList = {
   Capitulos: { livroId: string };
   Leitura: { livroId: string; capitulo: number };
 };
+
+/**
+ * Navegação interna da aba Início (Home → Devocional Diário). Mesma ideia da
+ * BibliaStackParamList: a tab bar permanece visível durante a navegação.
+ */
+export type HomeStackParamList = {
+  HomeMain: undefined;
+  Devocional: undefined;
+};

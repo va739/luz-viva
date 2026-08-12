@@ -1,10 +1,12 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { HomeScreen, JejumScreen, OracaoScreen, PerfilScreen } from '../screens';
+import { JejumScreen, OracaoScreen, PerfilScreen } from '../screens';
 import { colors, fontFamilies } from '../theme';
 import { FastingProvider } from '../context/FastingContext';
+import { DevotionalProvider } from '../context/DevotionalContext';
 import { BibliaStackNavigator } from './BibliaStackNavigator';
+import { HomeStackNavigator } from './HomeStackNavigator';
 import { RootTabParamList } from './types';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -41,7 +43,9 @@ const LABELS: Record<keyof RootTabParamList, string> = {
 export function RootTabNavigator() {
   return (
     <FastingProvider>
-      <RootTabs />
+      <DevotionalProvider>
+        <RootTabs />
+      </DevotionalProvider>
     </FastingProvider>
   );
 }
@@ -78,7 +82,7 @@ function RootTabs() {
         tabBarLabel: LABELS[route.name],
       })}
     >
-      <Tab.Screen name="Inicio" component={HomeScreen} />
+      <Tab.Screen name="Inicio" component={HomeStackNavigator} />
       <Tab.Screen name="Biblia" component={BibliaStackNavigator} />
       <Tab.Screen name="Oracao" component={OracaoScreen} />
       <Tab.Screen name="Jejum" component={JejumScreen} />
