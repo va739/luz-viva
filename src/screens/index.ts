@@ -6,5 +6,7 @@ export * from './BibliaLeituraScreen';
 export * from './OracaoScreen';
 export * from './JejumScreen';
 export * from './DevocionalScreen';
+export * from './KidsScreen';
+export * from './KidsPlaceholderScreen';
 export * from './PerfilScreen';
 export * from './PlaceholderScreen';

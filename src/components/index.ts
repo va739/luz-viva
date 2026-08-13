@@ -14,3 +14,4 @@ export * from './ExpandableSection';
 export * from './ExpandableCard';
 export * from './devotional/DevotionalImage';
 export * from './devotional/WeekStrip';
+export * from './kids/KidsImage';

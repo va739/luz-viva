@@ -172,7 +172,11 @@ export function HomeScreen() {
       <View style={styles.section}>
         <SectionHeader title="Descubra mais" />
         <View style={styles.discoverRow}>
-          <DiscoverItem customIcon={<KidsMark size={22} color={colors.navy700} />} label="Kids" />
+          <DiscoverItem
+            customIcon={<KidsMark size={22} color={colors.navy700} />}
+            label="Kids"
+            onPress={() => navigation.navigate('Kids')}
+          />
           <DiscoverItem icon="play-box-outline" label="Pregações" />
           <DiscoverItem icon="view-grid-outline" label="Mais" />
         </View>

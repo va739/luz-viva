@@ -27,4 +27,6 @@ export type BibliaStackParamList = {
 export type HomeStackParamList = {
   HomeMain: undefined;
   Devocional: undefined;
+  Kids: undefined;
+  KidsPlaceholder: { titulo: string; descricao?: string };
 };
